@@ -1,0 +1,15 @@
+{
+    "name": "pactice_2",
+    "version": "1.0.0",
+    "description": "Backend postman automation",
+    "main": "index.js",
+    "scripts": {
+        "testAPI": "npx newman run ./YOUR_APP/test/backEnd/collection/Todoist.postman_collection.json -e ./YOUR_APP/test/backEnd/envVariables/QA.postman_environment.json  -r htmlextra --reporter-htmlextra-export ./YOUR_APP/test/backEnd/reports/report.html"
+    },
+    "author": "Enrique Tavares",
+    "license": "ISC",
+    "dependencies": {
+        "newman": "^5.2.2",
+        "newman-reporter-htmlextra": "^1.20.1"
+    }
+}
