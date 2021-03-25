@@ -1,0 +1,96 @@
+config:
+  target: "https://api.todoist.com"
+  processor: "./functions.js"
+  phases:
+    - duration: 3
+      arrivalRate: 2
+      name: "Phase 1"
+
+    - duration: 30
+      arrivalRate: 8
+      name: "Phase 2"
+
+    - duration: 60
+      arrivalRate: 20
+      name: "Phase 3"
+    
+  defaults:
+   headers:
+    Authorization: Bearer {{ $processEnvironment.TOKEN }}
+    Content-type: application/json
+scenarios:
+  - flow:
+      - function: randomData
+      - log:  "Data to Add: {{ projectName }} - {{ taskName }}"
+      - get:
+          url: "/rest/v1/projects"
+      - post:
+          url: "/rest/v1/projects"
+          json:
+            name: "{{ projectName }}"
+          capture:
+            json: "$.id"
+            as: "id_project"
+      - log: "Current id is {{ id_project }}"
+      - get:
+          url: "/rest/v1/projects/{{ id_project }}"
+      - post:
+          url: "/rest/v1/projects/{{ id_project }}"
+          json:
+            name: "{{ projectName }}"
+
+      ## Get active tasks
+      - get:
+          url: "/rest/v1/tasks"
+
+      ## Create ne task
+      - post:
+          url: "/rest/v1/tasks"          
+          json:
+            content: "{{ taskName }}"
+            project_id: "{{id_project}}"
+            due_string: "Monday at 11:59" 
+            due_lang: "en" 
+            priority: 4
+          capture:
+            json: "$.id"
+            as : "id_task"
+
+      ## Create ne task
+      - post:
+          url: "/rest/v1/tasks"          
+          json:
+            content: "{{ taskName }}"
+            project_id: "{{id_project}}"
+            due_string: "Sunday at 08:30" 
+            due_lang: "en" 
+            priority: 4
+          capture:
+            json: "$.id"
+            as : "id_task2"
+
+      ## Get an active task
+      - get:
+          url: "/rest/v1/tasks/{{ id_task }}"
+
+      ## Update a task
+      - post:
+          url: "/rest/v1/tasks/{{ id_task }}"         
+          json:
+            content: "{{ taskName }}"
+
+      ## Change a task to 'complete'
+      - post:
+          url: "/rest/v1/tasks/{{ id_task }}/close"  
+
+      ## Reopen a task
+      - post:
+          url: "/rest/v1/tasks/{{ id_task }}/reopen"  
+
+      ## Delete a task
+      - delete:
+          url: "/rest/v1/tasks/{{ id_task }}" 
+
+      ## Delete a project
+      - delete:
+          url: "/rest/v1/projects/{{ id_project }}"
